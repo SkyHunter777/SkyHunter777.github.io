@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星空下的告白</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        /* 流星效果 */
+        .shooting-star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(var(--angle)) translateX(var(--start-x));
+            animation: shooting var(--speed) linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes shooting {
+            0% { 
+                transform: rotate(var(--angle)) translateX(var(--start-x));
+                opacity: 1;
+            }
+            70%, 100% { 
+                transform: rotate(var(--angle)) translateX(var(--end-x));
+                opacity: 0;
+            }
+        }
+        
+        /* 主要内容 */
+        .love-container {
+            position: relative;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .love-text {
+            font-size: 6em;
+            color: #fff;
+            text-shadow: 0 0 10px #ff66b2, 
+                         0 0 20px #ff66b2,
+                         0 0 30px #ff66b2,
+                         0 0 40px #ff66b2;
+            animation: pulse 1.5s infinite alternate;
+            margin-bottom: 30px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .heart {
+            font-size: 100px;
+            color: #ff66b2;
+            animation: heartbeat 1.5s infinite, float 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255,102,178,0.7);
+            filter: drop-shadow(0 0 10px rgba(255,102,178,0.5));
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* 爱心粒子效果 */
+        .heart-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff66b2;
+            border-radius: 50%;
+            opacity: 0;
+            animation: heart-explode 2s ease-out forwards;
+            z-index: 5;
+        }
+        
+        @keyframes heart-explode {
+            0% { 
+                transform: translate(0, 0) scale(0.5); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--tx), var(--ty)) scale(1.5); 
+                opacity: 0; 
+            }
+        }
+        
+        /* 漂浮爱心 */
+        .floating-heart {
+            position: absolute;
+            font-size: 30px;
+            color: #ff66b2;
+            animation: float-up 5s linear forwards;
+            opacity: 0.7;
+            z-index: 2;
+        }
+        
+        @keyframes float-up {
+            0% { 
+                transform: translateY(0) rotate(0deg); 
+                opacity: 0.7; 
+            }
+            100% { 
+                transform: translateY(-100vh) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+        
+        /* 底部文字 */
+        .message {
+            color: white;
+            font-size: 1.8em;
+            margin-top: 30px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            animation: fadeInOut 4s infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        /* 音乐控制按钮 */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        
+        .music-control i {
+            color: white;
+            font-size: 24px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 主要内容 -->
+    <div class="love-container">
+        <div class="love-text">我爱你</div>
+        <div class="heart">❤️</div>
+        <div class="message">在浩瀚星空下，我只想对你说...</div>
+    </div>
+    
+    <!-- 音乐控制 -->
+    <div class="music-control" id="musicControl">
+        <i class="fas fa-music"></i>
+    </div>
+    
+    <!-- 音频元素 -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+    
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 随机位置
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // 随机闪烁速度和延迟
+                star.style.setProperty('--duration', (Math.random() * 5 + 3) + 's');
+                star.style.animationDelay = Math.random() * 5 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 创建流星
+        function createShootingStar() {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            
+            // 随机角度和位置
+            const angle = Math.random() * 60 - 30; // -30到30度之间
+            const startX = Math.random() * 100 + 100; // 起始位置
+            
+            shootingStar.style.setProperty('--angle', angle + 'deg');
+            shootingStar.style.setProperty('--start-x', startX + 'px');
+            shootingStar.style.setProperty('--end-x', (startX + 500) + 'px');
+            shootingStar.style.setProperty('--speed', (Math.random() * 2000 + 3000) + 'ms');
+            
+            // 随机位置
+            shootingStar.style.left = Math.random() * 100 + '%';
+            shootingStar.style.top = Math.random() * 50 + '%';
+            
+            document.body.appendChild(shootingStar);
+            
+            // 移除流星元素
+            setTimeout(() => {
+                shootingStar.remove();
+            }, 5000);
+        }
+        
+        // 创建漂浮的爱心
+        function createFloatingHearts() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.bottom = '0px';
+            heart.style.fontSize = Math.random() * 30 + 20 + 'px';
+            heart.style.animationDuration = Math.random() * 3 + 5 + 's';
+            document.body.appendChild(heart);
+            
+            // 移除爱心元素
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+        
+        // 创建爱心粒子爆炸效果
+        function createHeartParticles(x, y) {
+            const particles = 30;
+            const angleIncrement = (Math.PI * 2) / particles;
+            
+            for (let i = 0; i < particles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'heart-particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.backgroundColor = `hsl(${Math.random() * 60 + 330}, 100%, 70%)`;
+                
+                const angle = angleIncrement * i;
+                const distance = Math.random() * 100 + 50;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                particle.style.animationDelay = Math.random() * 0.5 + 's';
+                particle.style.width = Math.random() * 8 + 5 + 'px';
+                particle.style.height = particle.style.width;
+                
+                document.body.appendChild(particle);
+                
+                // 移除粒子元素
+                setTimeout(() => {
+                    particle.remove();
+                }, 2000);
+            }
+        }
+        
+        // 音乐控制
+        function setupMusicControl() {
+            const musicControl = document.getElementById('musicControl');
+            const bgMusic = document.getElementById('bgMusic');
+            let isPlaying = false;
+            
+            // 点击控制音乐
+            musicControl.addEventListener('click', function() {
+                if (isPlaying) {
+                    bgMusic.pause();
+                    musicControl.innerHTML = '<i class="fas fa-music"></i>';
+                } else {
+                    bgMusic.play();
+                    musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            });
+            
+            // 自动播放音乐（需要用户交互后）
+            document.body.addEventListener('click', function() {
+                if (!isPlaying) {
+                    bgMusic.play();
+                    musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                }
+            }, { once: true });
+        }
+        
+        // 初始化动画
+        window.onload = function() {
+            createStars();
+            setupMusicControl();
+            
+            // 创建流星
+            setInterval(createShootingStar, 2000);
+            
+            // 创建漂浮爱心
+            setInterval(createFloatingHearts, 300);
+            
+            // 初始爱心粒子齐放
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * (window.innerWidth - 200) + 100;
+                    const y = Math.random() * (window.innerHeight * 0.5) + 100;
+                    createHeartParticles(x, y);
+                }, i * 500);
+            }
+            
+            // 点击页面任意位置触发爱心爆炸
+            document.body.addEventListener('click', function(e) {
+                createHeartParticles(e.clientX, e.clientY);
+            });
+        };
+    </script>
+</body>
+</html>
